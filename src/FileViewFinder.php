@@ -16,7 +16,7 @@ class FileViewFinder
     /**
      * The filesystem instance.
      *
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var \Xiaoler\Blade\Filesystem
      */
     protected $files;
 
@@ -51,7 +51,7 @@ class FileViewFinder
     /**
      * Create a new file view loader instance.
      *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
+     * @param  \Xiaoler\Blade\Filesystem  $files
      * @param  array  $paths
      * @param  array  $extensions
      * @return void
@@ -233,7 +233,7 @@ class FileViewFinder
     /**
      * Get the filesystem instance.
      *
-     * @return \Illuminate\Filesystem\Filesystem
+     * @return \Xiaoler\Blade\Filesystem
      */
     public function getFilesystem()
     {

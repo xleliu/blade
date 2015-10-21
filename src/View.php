@@ -11,14 +11,14 @@ class View implements ArrayAccess
     /**
      * The view factory instance.
      *
-     * @var \Illuminate\View\Factory
+     * @var \Xiaoler\Blade\Factory
      */
     protected $factory;
 
     /**
      * The engine implementation.
      *
-     * @var \Illuminate\View\Engines\EngineInterface
+     * @var \Xiaoler\Blade\Compilers\BladeCompiler
      */
     protected $engine;
 
@@ -46,8 +46,8 @@ class View implements ArrayAccess
     /**
      * Create a new view instance.
      *
-     * @param  \Illuminate\View\Factory  $factory
-     * @param  \Illuminate\View\Engines\EngineInterface  $engine
+     * @param  \Xiaoler\Blade\Factory  $factory
+     * @param  \Xiaoler\Blade\Compilers\BladeCompiler  $engine
      * @param  string  $view
      * @param  string  $path
      * @param  array   $data
@@ -177,26 +177,9 @@ class View implements ArrayAccess
     }
 
     /**
-     * Add validation errors to the view.
-     *
-     * @param  \Illuminate\Contracts\Support\MessageProvider|array  $provider
-     * @return $this
-     */
-    public function withErrors($provider)
-    {
-        if ($provider instanceof MessageProvider) {
-            $this->with('errors', $provider->getMessageBag());
-        } else {
-            $this->with('errors', new MessageBag((array) $provider));
-        }
-
-        return $this;
-    }
-
-    /**
      * Get the view factory instance.
      *
-     * @return \Illuminate\View\Factory
+     * @return \Xiaoler\Blade\Factory
      */
     public function getFactory()
     {
@@ -206,7 +189,7 @@ class View implements ArrayAccess
     /**
      * Get the view's rendering engine.
      *
-     * @return \Illuminate\View\Engines\EngineInterface
+     * @return \Xiaoler\Blade\Compilers\BladeCompiler
      */
     public function getEngine()
     {
@@ -359,7 +342,7 @@ class View implements ArrayAccess
      *
      * @param  string  $method
      * @param  array   $parameters
-     * @return \Illuminate\View\View
+     * @return \Xiaoler\Blade\View
      *
      * @throws \BadMethodCallException
      */

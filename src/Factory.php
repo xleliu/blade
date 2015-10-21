@@ -16,7 +16,7 @@ class Factory
     /**
      * The view finder implementation.
      *
-     * @var \Illuminate\View\ViewFinderInterface
+     * @var \Xiaoler\Blade\FileViewFinder
      */
     protected $finder;
 
@@ -65,7 +65,7 @@ class Factory
     /**
      * Create a new view factory instance.
      *
-     * @param  \Illuminate\View\ViewFinderInterface  $finder
+     * @param  \Xiaoler\Blade\FileViewFinder  $finder
      * @return void
      */
     public function __construct(FileViewFinder $finder, $cachePath)
@@ -82,7 +82,7 @@ class Factory
      * @param  string  $path
      * @param  array   $data
      * @param  array   $mergeData
-     * @return \Illuminate\View\View
+     * @return \Xiaoler\Blade\View
      */
     public function file($path, $data = [], $mergeData = [])
     {
@@ -99,7 +99,7 @@ class Factory
      * @param  string  $view
      * @param  array   $data
      * @param  array   $mergeData
-     * @return \Illuminate\Contracts\View\View
+     * @return \Xiaoler\Blade\View
      */
     public function make($view, $data = [], $mergeData = [])
     {
@@ -142,7 +142,7 @@ class Factory
      *
      * @param  string  $view
      * @param  mixed   $data
-     * @return \Illuminate\View\View
+     * @return \Xiaoler\Blade\View
      */
     public function of($view, $data = [])
     {
@@ -453,22 +453,11 @@ class Factory
     /**
      * Get the view finder instance.
      *
-     * @return \Illuminate\View\ViewFinderInterface
+     * @return \Xiaoler\Blade\FileViewFinder
      */
     public function getFinder()
     {
         return $this->finder;
-    }
-
-    /**
-     * Set the view finder instance.
-     *
-     * @param  \Illuminate\View\ViewFinderInterface  $finder
-     * @return void
-     */
-    public function setFinder(ViewFinderInterface $finder)
-    {
-        $this->finder = $finder;
     }
 
     /**

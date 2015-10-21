@@ -10,7 +10,7 @@ class CompilerEngine extends PhpEngine
     /**
      * The Blade compiler instance.
      *
-     * @var \Illuminate\View\Compilers\CompilerInterface
+     * @var \Xiaoler\Blade\Compilers\CompilerInterface
      */
     protected $compiler;
 
@@ -24,7 +24,7 @@ class CompilerEngine extends PhpEngine
     /**
      * Create a new Blade view engine instance.
      *
-     * @param  \Illuminate\View\Compilers\CompilerInterface  $compiler
+     * @param  \Xiaoler\Blade\Compilers\CompilerInterface  $compiler
      * @return void
      */
     public function __construct($cachePath)
@@ -92,7 +92,7 @@ class CompilerEngine extends PhpEngine
     /**
      * Get the compiler implementation.
      *
-     * @return \Illuminate\View\Compilers\CompilerInterface
+     * @return \Xiaoler\Blade\Compilers\CompilerInterface
      */
     public function getCompiler()
     {
