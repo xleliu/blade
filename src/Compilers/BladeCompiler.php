@@ -78,7 +78,7 @@ class BladeCompiler extends Compiler
 
         $contents = $this->compileString($this->files->get($this->getPath()));
 
-        if (! is_null($this->cachePath)) {
+        if (!is_null($this->cachePath)) {
             $this->files->put($this->getCompiledPath($this->getPath()), $contents);
         }
     }
@@ -637,10 +637,10 @@ class BladeCompiler extends Compiler
     }
 
     /**
-    * Gets the raw tags used by the compiler.
-    *
-    * @return array
-    */
+     * Gets the raw tags used by the compiler.
+     *
+     * @return array
+     */
     public function getRawTags()
     {
         return $this->rawTags;

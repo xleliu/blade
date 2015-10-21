@@ -80,7 +80,7 @@ class View implements ArrayAccess
         // another view gets rendered in the future by the application developer.
         $this->factory->flushSectionsIfDoneRendering();
 
-        return ! is_null($response) ? $response : $contents;
+        return !is_null($response) ? $response : $contents;
     }
 
     /**
@@ -351,10 +351,11 @@ class View implements ArrayAccess
         if (strpos($method, 'with') === 0) {
             $value = substr($method, 4);
 
-            if (! ctype_lower($value)) {
+            if (!ctype_lower($value)) {
                 $value = preg_replace('/\s+/', '', $value);
                 $value = strtolower(preg_replace('/(.)(?=[A-Z])/', '$1'.'_', $value));
             }
+
             return $this->with($value, $parameters[0]);
         }
 

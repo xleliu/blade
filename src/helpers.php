@@ -1,6 +1,6 @@
 <?php
 
-if (! function_exists('e')) {
+if (!function_exists('e')) {
     /**
      * Escape HTML entities in a string.
      *
@@ -13,7 +13,7 @@ if (! function_exists('e')) {
     }
 }
 
-if (! function_exists('array_except')) {
+if (!function_exists('array_except')) {
     /**
      * Get all of the given array except for a specified array of items.
      *
@@ -26,6 +26,7 @@ if (! function_exists('array_except')) {
         foreach ((array) $keys as $key) {
             unset($array[$key]);
         }
+
         return $array;
     }
 }
