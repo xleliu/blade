@@ -26,5 +26,6 @@ if (! function_exists('array_except')) {
         foreach ((array) $keys as $key) {
             unset($array[$key]);
         }
+        return $array;
     }
 }
