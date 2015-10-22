@@ -24,7 +24,8 @@ and then `require` them in your code.
 $path = ['/view_path'];         // your view file path, it's an array
 $cachePath = '/cache_path';     // compiled file path
 
-$engine = new \Xiaoler\Blade\Engines\CompilerEngine($cachePath);
+$compiler = new new \Xiaoler\Blade\Compilers\BladeCompiler($cachePath);
+$engine = new \Xiaoler\Blade\Engines\CompilerEngine($compiler);
 $finder = new \Xiaoler\Blade\FileViewFinder($path);
 
 // if your view file extension is not php or blade.php, use this to add it

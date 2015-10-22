@@ -23,7 +23,6 @@ abstract class Compiler
     /**
      * Create a new compiler instance.
      *
-     * @param  \Xiaoler\Blade\Filesystem  $files
      * @param  string  $cachePath
      * @return void
      */
