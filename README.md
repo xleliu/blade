@@ -27,6 +27,7 @@ You can't:
 
 - use `@inject` `@can` `@cannot` in template file;
 - define your own custom directives;
+- add any events or middleaware;
 
 Documentation: [http://laravel.com/docs/5.1/blade](http://laravel.com/docs/5.1/blade)
 
