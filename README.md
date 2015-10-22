@@ -1,47 +1,51 @@
 # Blade
 
-This is a view template engine which fetch from Laravel view template - Blade.
+This is an extension of Blade, a view templating engine which is extracted from Laravel.
 
-What's more important, it's independent without depend on Laravel Container or any others.
+It's independent without relying on Laravel and other containers.
 
 
-### Installation：
+### Installation
 
-With Composer, you should just do it:
+With Composer, you just need to run
 
 ``` sh
 composer require xiaoler/blade
 ```
 
-If you want to use it without composer, you should add all the files in folder `src` to you projects,
-them `require` them in you code.
+If you haven't use composer, you should add all the files in folder `src` to your project folder,
+and then `require` them in your code.
 
 
-### Usage：
+### Usage
 
-``` php
+```php
 <?php
-$path = ['/view_path']; // you view file path, it's array.
-$cachePath = '/cache_path'; // compiled file path.
+$path = ['/view_path'];         // your view file path, it's an array
+$cachePath = '/cache_path';     // compiled file path
 
 $engine = new \Xiaoler\Blade\Engines\CompilerEngine($cachePath);
 $finder = new \Xiaoler\Blade\FileViewFinder($path);
-// if you view file extension is not php or blade.php, use this to add it.
+
+// if your view file extension is not php or blade.php, use this to add it
 $finder->addExtension('tpl');
-// get an instance of factory.
+
+// get an instance of factory
 $factory = new \Xiaoler\Blade\Factory($engine, $finder);
-// render template file and echo it.
+
+// render the template file and echo it
 echo $factory->make('hello', ['a' => 1, 'b' => 2])->render();
 ```
 
-Almostly you can use all features of blade. but some of exclusively features are removed.
+You can enjoy almost all the features of blade with this extension.
+However, remember that some of exclusive features are removed.
 
 You can't:
 
-- use `@inject` `@can` `@cannot` in template file;
-- define your own custom directives;
-- add any events or middleaware;
+- use `@inject` `@can` `@cannot` in a template file
+- define your own custom directives
+- add any events or middleawares
 
 Documentation: [http://laravel.com/docs/5.1/blade](http://laravel.com/docs/5.1/blade)
 
-Thanks for Laravel and it's author, that is a great project.
+Thanks for Laravel and it's authors. That is a great project.
