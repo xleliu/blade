@@ -3,15 +3,16 @@
 namespace Xiaoler\Blade;
 
 use InvalidArgumentException;
+use Xiaoler\Blade\Engines\CompilerEngine;
 
 class Factory
 {
     /**
-     * Get the cache path for the compiled views.
+     * The engine implementation.
      *
-     * @var string
+     * @var \Xiaoler\Blade\Engines\CompilerEngine
      */
-    protected $cachePath;
+    protected $engine;
 
     /**
      * The view finder implementation.
@@ -68,10 +69,10 @@ class Factory
      * @param  \Xiaoler\Blade\FileViewFinder  $finder
      * @return void
      */
-    public function __construct(FileViewFinder $finder, $cachePath)
+    public function __construct(CompilerEngine $engine, FileViewFinder $finder)
     {
         $this->finder = $finder;
-        $this->cachePath = $cachePath;
+        $this->engine = $engine;
 
         $this->share('__env', $this);
     }
@@ -88,7 +89,7 @@ class Factory
     {
         $data = array_merge($mergeData, $data);
 
-        $view = new View($this, $path, $path, $data);
+        $view = new View($this, $this->engine, $path, $path, $data);
 
         return $view;
     }
@@ -113,7 +114,7 @@ class Factory
 
         $data = array_merge($mergeData, $data);
 
-        $view = new View($this, $view, $path, $this->cachePath, $data);
+        $view = new View($this, $this->engine, $view, $path, $data);
 
         return $view;
     }

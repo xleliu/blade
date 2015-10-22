@@ -18,7 +18,7 @@ class View implements ArrayAccess
     /**
      * The engine implementation.
      *
-     * @var \Xiaoler\Blade\Compilers\BladeCompiler
+     * @var \Xiaoler\Blade\Engines\CompilerEngine
      */
     protected $engine;
 
@@ -47,18 +47,18 @@ class View implements ArrayAccess
      * Create a new view instance.
      *
      * @param  \Xiaoler\Blade\Factory  $factory
-     * @param  \Xiaoler\Blade\Compilers\BladeCompiler  $engine
+     * @param  \Xiaoler\Blade\Engines\CompilerEngine  $engine
      * @param  string  $view
      * @param  string  $path
      * @param  array   $data
      * @return void
      */
-    public function __construct(Factory $factory, $view, $path, $cachePath, $data = [])
+    public function __construct(Factory $factory, CompilerEngine $engine, $view, $path, $data = [])
     {
         $this->view = $view;
         $this->path = $path;
+        $this->engine = $engine;
         $this->factory = $factory;
-        $this->engine = new CompilerEngine($cachePath);
 
         $this->data = (array) $data;
     }
