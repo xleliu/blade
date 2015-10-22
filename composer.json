@@ -13,6 +13,9 @@
             "email": "scholer_l@live.com"
         }
     ],
+    "require": {
+        "php": ">=5.4.0"
+    },
     "autoload": {
         "files": [
             "src/helpers.php"
