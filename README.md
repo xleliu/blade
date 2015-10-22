@@ -4,7 +4,20 @@ This is a view template engine which fetch from Laravel view template - Blade.
 
 What's more important, it's independent without depend on Laravel Container or any others.
 
-Usage：
+
+### Installation：
+
+With Composer, you should just do it:
+
+``` sh
+composer require xiaoler/blade
+```
+
+If you want to use it without composer, you should add all the files in folder `src` to you projects,
+them `require` them in you code.
+
+
+### Usage：
 
 ``` php
 <?php
