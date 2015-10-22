@@ -1,6 +1,6 @@
 # Blade
 
-[中文文档](https://github.com/XiaoLer/blade/wiki)
+[中文](https://github.com/XiaoLer/blade/wiki)
 
 This is an extension/component of PHP, a view templating engine which is extracted from Laravel.
 
