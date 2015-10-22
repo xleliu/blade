@@ -1,10 +1,8 @@
 # Blade
 
-[中文](https://github.com/XiaoLer/blade/wiki)
+[【简体中文】](https://github.com/XiaoLer/blade/wiki)
 
-This is an extension/component of PHP, a view templating engine which is extracted from Laravel.
-
-It's independent without relying on Laravel's Container or any others.
+This is a view templating engine which is extracted from Laravel. It's independent without relying on Laravel's Container or any others.
 
 
 ### Installation
@@ -50,4 +48,4 @@ You can't:
 
 Documentation: [http://laravel.com/docs/5.1/blade](http://laravel.com/docs/5.1/blade)
 
-Thanks for Laravel and it's authors. That is a great project.
+Thanks for Laravel and it authors. That is a great project.
