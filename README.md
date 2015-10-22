@@ -24,7 +24,7 @@ and then `require` them in your code.
 $path = ['/view_path'];         // your view file path, it's an array
 $cachePath = '/cache_path';     // compiled file path
 
-$compiler = new new \Xiaoler\Blade\Compilers\BladeCompiler($cachePath);
+$compiler = new \Xiaoler\Blade\Compilers\BladeCompiler($cachePath);
 $engine = new \Xiaoler\Blade\Engines\CompilerEngine($compiler);
 $finder = new \Xiaoler\Blade\FileViewFinder($path);
 
@@ -43,7 +43,7 @@ However, remember that some of exclusive features are removed.
 
 You can't:
 
-- use `@inject` `@can` `@cannot` in a template file
+- use `@inject` `@can` `@cannot` `@lang` in a template file
 - define your own custom directives
 - add any events or middleawares
 
