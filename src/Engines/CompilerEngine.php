@@ -3,14 +3,14 @@
 namespace Xiaoler\Blade\Engines;
 
 use ErrorException;
-use Xiaoler\Blade\Compilers\BladeCompiler;
+use Xiaoler\Blade\Compilers\CompilerInterface;
 
 class CompilerEngine extends PhpEngine
 {
     /**
      * The Blade compiler instance.
      *
-     * @var \Xiaoler\Blade\Compilers\BladeCompiler
+     * @var \Xiaoler\Blade\Compilers\EngineInterface
      */
     protected $compiler;
 
@@ -24,10 +24,10 @@ class CompilerEngine extends PhpEngine
     /**
      * Create a new Blade view engine instance.
      *
-     * @param  \Xiaoler\Blade\Compilers\BladeCompiler  $compiler
+     * @param  \Xiaoler\Blade\Compilers\EngineInterface  $compiler
      * @return void
      */
-    public function __construct(BladeCompiler $compiler)
+    public function __construct(CompilerInterface $compiler)
     {
         $this->compiler = $compiler;
     }

@@ -2,7 +2,7 @@
 
 namespace Xiaoler\Blade\Engines;
 
-class PhpEngine
+class PhpEngine implements EngineInterface
 {
     /**
      * Get the evaluated contents of the view.

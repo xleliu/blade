@@ -4,7 +4,7 @@ namespace Xiaoler\Blade;
 
 use ArrayAccess;
 use BadMethodCallException;
-use Xiaoler\Blade\Engines\CompilerEngine;
+use Xiaoler\Blade\Engines\EngineInterface;
 
 class View implements ArrayAccess
 {
@@ -18,7 +18,7 @@ class View implements ArrayAccess
     /**
      * The engine implementation.
      *
-     * @var \Xiaoler\Blade\Engines\CompilerEngine
+     * @var \Xiaoler\Blade\Engines\EngineInterface
      */
     protected $engine;
 
@@ -47,13 +47,13 @@ class View implements ArrayAccess
      * Create a new view instance.
      *
      * @param  \Xiaoler\Blade\Factory  $factory
-     * @param  \Xiaoler\Blade\Engines\CompilerEngine  $engine
+     * @param  \Xiaoler\Blade\Engines\EngineInterface  $engine
      * @param  string  $view
      * @param  string  $path
      * @param  array   $data
      * @return void
      */
-    public function __construct(Factory $factory, CompilerEngine $engine, $view, $path, $data = [])
+    public function __construct(Factory $factory, EngineInterface $engine, $view, $path, $data = [])
     {
         $this->view = $view;
         $this->path = $path;

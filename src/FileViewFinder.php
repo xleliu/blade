@@ -4,15 +4,8 @@ namespace Xiaoler\Blade;
 
 use InvalidArgumentException;
 
-class FileViewFinder
+class FileViewFinder implements ViewFinderInterface
 {
-    /**
-     * Hint path delimiter value.
-     *
-     * @var string
-     */
-    const HINT_PATH_DELIMITER = '::';
-
     /**
      * The filesystem instance.
      *

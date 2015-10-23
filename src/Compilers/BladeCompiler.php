@@ -2,7 +2,7 @@
 
 namespace Xiaoler\Blade\Compilers;
 
-class BladeCompiler extends Compiler
+class BladeCompiler extends Compiler implements CompilerInterface
 {
     /**
      * The file currently being compiled.

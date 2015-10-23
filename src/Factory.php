@@ -3,21 +3,22 @@
 namespace Xiaoler\Blade;
 
 use InvalidArgumentException;
-use Xiaoler\Blade\Engines\CompilerEngine;
+use Xiaoler\Blade\ViewFinderInterface;
+use Xiaoler\Blade\Engines\EngineInterface;
 
 class Factory
 {
     /**
      * The engine implementation.
      *
-     * @var \Xiaoler\Blade\Engines\CompilerEngine
+     * @var \Xiaoler\Blade\Engines\EngineInterface
      */
     protected $engine;
 
     /**
      * The view finder implementation.
      *
-     * @var \Xiaoler\Blade\FileViewFinder
+     * @var \Xiaoler\Blade\ViewFinderInterface
      */
     protected $finder;
 
@@ -66,10 +67,10 @@ class Factory
     /**
      * Create a new view factory instance.
      *
-     * @param  \Xiaoler\Blade\FileViewFinder  $finder
+     * @param  \Xiaoler\Blade\ViewFinderInterface  $finder
      * @return void
      */
-    public function __construct(CompilerEngine $engine, FileViewFinder $finder)
+    public function __construct(EngineInterface $engine, ViewFinderInterface $finder)
     {
         $this->finder = $finder;
         $this->engine = $engine;
@@ -127,7 +128,7 @@ class Factory
      */
     protected function normalizeName($name)
     {
-        $delimiter = FileViewFinder::HINT_PATH_DELIMITER;
+        $delimiter = ViewFinderInterface::HINT_PATH_DELIMITER;
 
         if (strpos($name, $delimiter) === false) {
             return str_replace('/', '.', $name);
@@ -454,11 +455,22 @@ class Factory
     /**
      * Get the view finder instance.
      *
-     * @return \Xiaoler\Blade\FileViewFinder
+     * @return \Xiaoler\Blade\ViewFinderInterface
      */
     public function getFinder()
     {
         return $this->finder;
+    }
+
+    /**
+     * Set the view finder instance.
+     *
+     * @param  \Xiaoler\Blade\ViewFinderInterface  $finder
+     * @return void
+     */
+    public function setFinder(ViewFinderInterface $finder)
+    {
+        $this->finder = $finder;
     }
 
     /**
