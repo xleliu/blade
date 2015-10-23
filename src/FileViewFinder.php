@@ -44,7 +44,6 @@ class FileViewFinder implements ViewFinderInterface
     /**
      * Create a new file view loader instance.
      *
-     * @param  \Xiaoler\Blade\Filesystem  $files
      * @param  array  $paths
      * @param  array  $extensions
      * @return void

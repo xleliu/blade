@@ -189,7 +189,7 @@ class View implements ArrayAccess
     /**
      * Get the view's rendering engine.
      *
-     * @return \Xiaoler\Blade\Compilers\BladeCompiler
+     * @return \Xiaoler\Blade\Engines\EngineInterface
      */
     public function getEngine()
     {
