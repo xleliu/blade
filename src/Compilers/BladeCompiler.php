@@ -5,6 +5,15 @@ namespace Xiaoler\Blade\Compilers;
 class BladeCompiler extends Compiler implements CompilerInterface
 {
     /**
+     * All custom "directive" handlers.
+     *
+     * This was implemented as a more usable "extend" in 5.1.
+     *
+     * @var array
+     */
+    protected $customDirectives = [];
+
+    /**
      * The file currently being compiled.
      *
      * @var string
@@ -231,9 +240,13 @@ class BladeCompiler extends Compiler implements CompilerInterface
     protected function compileStatements($value)
     {
         $callback = function ($match) {
+            // Replace the original "Arr::get(3)" method
+            $expression = isset($match[3]) ? $match[3] : $match;
+
             if (method_exists($this, $method = 'compile'.ucfirst($match[1]))) {
-                $arguments = isset($match[3]) ? $match[3] : $match;
-                $match[0] = $this->$method($arguments);
+                $match[0] = $this->$method($expression);
+            } elseif (isset($this->customDirectives[$match[1]])) {
+                $match[0] = call_user_func($this->customDirectives[$match[1]], $expression);
             }
 
             return isset($match[3]) ? $match[0] : $match[0].$match[2];
@@ -634,6 +647,28 @@ class BladeCompiler extends Compiler implements CompilerInterface
     protected function compileEndpush($expression)
     {
         return '<?php $__env->appendSection(); ?>';
+    }
+
+    /**
+     * Register a handler for custom directives.
+     *
+     * @param  string  $name
+     * @param  callable  $handler
+     * @return void
+     */
+    public function directive($name, callable $handler)
+    {
+        $this->customDirectives[$name] = $handler;
+    }
+
+    /**
+     * Get the list of custom directives.
+     *
+     * @return array
+     */
+    public function getCustomDirectives()
+    {
+        return $this->customDirectives;
     }
 
     /**

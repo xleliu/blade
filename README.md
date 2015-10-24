@@ -25,6 +25,12 @@ $path = ['/view_path'];         // your view file path, it's an array
 $cachePath = '/cache_path';     // compiled file path
 
 $compiler = new \Xiaoler\Blade\Compilers\BladeCompiler($cachePath);
+
+// you can add a custom directive if you want
+$compiler->directive('datetime', function($timestamp) {
+    return preg_replace('/(\(\d+\))/', '<?php echo date("Y-m-d H:i:s", $1); ?>', $timestamp);
+});
+
 $engine = new \Xiaoler\Blade\Engines\CompilerEngine($compiler);
 $finder = new \Xiaoler\Blade\FileViewFinder($path);
 
