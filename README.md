@@ -50,7 +50,6 @@ However, remember that some of exclusive features are removed.
 You can't:
 
 - use `@inject` `@can` `@cannot` `@lang` in a template file
-- define your own custom directives
 - add any events or middleawares
 
 Documentation: [http://laravel.com/docs/5.1/blade](http://laravel.com/docs/5.1/blade)
