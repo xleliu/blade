@@ -58,6 +58,27 @@ class Factory
     protected $sectionStack = [];
 
     /**
+     * The stack of in-progress loops.
+     *
+     * @var array
+     */
+    protected $loopsStack = [];
+
+    /**
+     * All of the finished, captured push sections.
+     *
+     * @var array
+     */
+    protected $pushes = [];
+
+    /**
+     * The stack of in-progress push sections.
+     *
+     * @var array
+     */
+    protected $pushStack = [];
+
+    /**
      * The number of active rendering operations.
      *
      * @var int
@@ -364,6 +385,78 @@ class Factory
     }
 
     /**
+     * Start injecting content into a push section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    public function startPush($section, $content = '')
+    {
+        if ($content === '') {
+            if (ob_start()) {
+                $this->pushStack[] = $section;
+            }
+        } else {
+            $this->extendPush($section, $content);
+        }
+    }
+
+    /**
+     * Stop injecting content into a push section.
+     *
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function stopPush()
+    {
+        if (empty($this->pushStack)) {
+            throw new InvalidArgumentException('Cannot end a section without first starting one.');
+        }
+
+        $last = array_pop($this->pushStack);
+
+        $this->extendPush($last, ob_get_clean());
+
+        return $last;
+    }
+
+    /**
+     * Append content to a given push section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    protected function extendPush($section, $content)
+    {
+        if (! isset($this->pushes[$section])) {
+            $this->pushes[$section] = [];
+        }
+        if (! isset($this->pushes[$section][$this->renderCount])) {
+            $this->pushes[$section][$this->renderCount] = $content;
+        } else {
+            $this->pushes[$section][$this->renderCount] .= $content;
+        }
+    }
+
+    /**
+     * Get the string contents of a push section.
+     *
+     * @param  string  $section
+     * @param  string  $default
+     * @return string
+     */
+    public function yieldPushContent($section, $default = '')
+    {
+        if (! isset($this->pushes[$section])) {
+            return $default;
+        }
+
+        return implode(array_reverse($this->pushes[$section]));
+    }
+
+    /**
      * Flush all of the section contents.
      *
      * @return void
@@ -415,6 +508,81 @@ class Factory
     public function doneRendering()
     {
         return $this->renderCount == 0;
+    }
+
+    /**
+     * Add new loop to the stack.
+     *
+     * @param  array|\Countable  $data
+     * @return void
+     */
+    public function addLoop($data)
+    {
+        $length = is_array($data) || $data instanceof Countable ? count($data) : null;
+
+        $parent = end($this->loopsStack);
+
+        $this->loopsStack[] = [
+            'iteration' => 0,
+            'index' => 0,
+            'remaining' => isset($length) ? $length : null,
+            'count' => $length,
+            'first' => true,
+            'last' => isset($length) ? $length == 1 : null,
+            'depth' => count($this->loopsStack) + 1,
+            'parent' => $parent ? (object) $parent : null,
+        ];
+    }
+
+    /**
+     * Increment the top loop's indices.
+     *
+     * @return void
+     */
+    public function incrementLoopIndices()
+    {
+        $loop = &$this->loopsStack[count($this->loopsStack) - 1];
+
+        $loop['iteration']++;
+        $loop['index'] = $loop['iteration'] - 1;
+
+        $loop['first'] = $loop['iteration'] == 1;
+
+        if (isset($loop['count'])) {
+            $loop['remaining']--;
+
+            $loop['last'] = $loop['iteration'] == $loop['count'];
+        }
+    }
+
+    /**
+     * Pop a loop from the top of the loop stack.
+     *
+     * @return void
+     */
+    public function popLoop()
+    {
+        array_pop($this->loopsStack);
+    }
+
+    /**
+     * Get an instance of the first loop in the stack.
+     *
+     * @return array
+     */
+    public function getFirstLoop()
+    {
+        return ($last = end($this->loopsStack)) ? (object) $last : null;
+    }
+
+    /**
+     * Get the entire loop stack.
+     *
+     * @return array
+     */
+    public function getLoopStack()
+    {
+        return $this->loopsStack;
     }
 
     /**
