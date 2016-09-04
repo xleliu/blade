@@ -479,6 +479,28 @@ class BladeCompiler extends Compiler implements CompilerInterface
     }
 
     /**
+     * Compile the break statements into valid PHP.
+     *
+     * @param  string  $expression
+     * @return string
+     */
+    protected function compileBreak($expression)
+    {
+        return $expression ? "<?php if{$expression} break; ?>" : '<?php break; ?>';
+    }
+
+    /**
+     * Compile the continue statements into valid PHP.
+     *
+     * @param  string  $expression
+     * @return string
+     */
+    protected function compileContinue($expression)
+    {
+        return $expression ? "<?php if{$expression} continue; ?>" : '<?php continue; ?>';
+    }
+
+    /**
      * Compile the forelse statements into valid PHP.
      *
      * @param  string  $expression
@@ -488,7 +510,17 @@ class BladeCompiler extends Compiler implements CompilerInterface
     {
         $empty = '$__empty_'.++$this->forelseCounter;
 
-        return "<?php {$empty} = true; foreach{$expression}: {$empty} = false; ?>";
+        preg_match('/\( *(.*) +as *([^\)]*)/', $expression, $matches);
+
+        $iteratee = trim($matches[1]);
+
+        $iteration = trim($matches[2]);
+
+        $initLoop = "\$__currentLoopData = {$iteratee}; \$__env->addLoop(\$__currentLoopData);";
+
+        $iterateLoop = '$__env->incrementLoopIndices(); $loop = $__env->getFirstLoop();';
+
+        return "<?php {$empty} = true; {$initLoop} foreach(\$__currentLoopData as {$iteration}): {$iterateLoop} {$empty} = false; ?>";
     }
 
     /**
