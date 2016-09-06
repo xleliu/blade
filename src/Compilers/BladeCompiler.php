@@ -240,19 +240,18 @@ class BladeCompiler extends Compiler implements CompilerInterface
     protected function compileStatements($value)
     {
         $callback = function ($match) {
-            // Replace the original "Arr::get(3)" method
-            $expression = isset($match[3]) ? $match[3] : $match;
-
-            if (method_exists($this, $method = 'compile'.ucfirst($match[1]))) {
-                $match[0] = $this->$method($expression);
+            if (strpos($match[1], '@') !== false) {
+                $match[0] = isset($match[3]) ? $match[1].$match[3] : $match[1];
             } elseif (isset($this->customDirectives[$match[1]])) {
-                $match[0] = call_user_func($this->customDirectives[$match[1]], $expression);
+                $match[0] = call_user_func($this->customDirectives[$match[1]], ($match[3] ?: ''));
+            } elseif (method_exists($this, $method = 'compile'.ucfirst($match[1]))) {
+                $match[0] = $this->$method(($match[3] ?: ''));
             }
 
             return isset($match[3]) ? $match[0] : $match[0].$match[2];
         };
 
-        return preg_replace_callback('/\B@(\w+)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', $callback, $value);
+        return preg_replace_callback('/\B@(@?\w+)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', $callback, $value);
     }
 
     /**
