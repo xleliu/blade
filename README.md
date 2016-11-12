@@ -52,6 +52,6 @@ You can't:
 - use `@inject` `@can` `@cannot` `@lang` in a template file
 - add any events or middleawares
 
-Documentation: [http://laravel.com/docs/5.1/blade](http://laravel.com/docs/5.1/blade)
+Documentation: [http://laravel.com/docs/5.3/blade](http://laravel.com/docs/5.3/blade)
 
 Thanks for Laravel and it authors. That is a great project.
