@@ -49,7 +49,6 @@ class CompilerEngine extends PhpEngine
         if ($this->compiler->isExpired($path)) {
             $this->compiler->compile($path);
         }
-
         $compiled = $this->compiler->getCompiledPath($path);
 
         // Once we have the path to the compiled file, we will evaluate the paths with

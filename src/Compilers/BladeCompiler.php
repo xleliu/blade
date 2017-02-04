@@ -85,9 +85,12 @@ class BladeCompiler extends Compiler implements CompilerInterface
             $this->setPath($path);
         }
 
-        $contents = $this->compileString($this->files->get($this->getPath()));
-
         if (!is_null($this->cachePath)) {
+            if (!is_dir($this->cachePath)) {
+                mkdir($this->cachePath, 0755, true);
+            }
+            $contents = $this->compileString($this->files->get($this->getPath()));
+
             $this->files->put($this->getCompiledPath($this->getPath()), $contents);
         }
     }
@@ -335,6 +338,48 @@ class BladeCompiler extends Compiler implements CompilerInterface
     protected function compileEach($expression)
     {
         return "<?php echo \$__env->renderEach{$expression}; ?>";
+    }
+
+    /**
+     * Compile the component statements into valid PHP.
+     *
+     * @param $expression
+     *
+     * @return string
+     */
+    protected function compileComponent($expression)
+    {
+        return "<?php echo \$__env->startComponent{$expression}; ?>";
+    }
+
+    /**
+     * Compile the endcomponent statements into valid PHP.
+     *
+     * @return string
+     */
+    protected function compileEndcomponent()
+    {
+        return '<?php echo $__env->renderComponent(); ?>';
+    }
+
+    /**
+     * Compile the slot statements into valid PHP.
+     *
+     * @param $expression
+     *
+     * @return string
+     */
+    protected function compileSlot($expression) {
+        return "<?php \$__env->slot{$expression}; ?>";
+    }
+
+    /**
+     * Compile the endslot statements into valid PHP.
+     *
+     * @return string
+     */
+    protected function compileEndslot() {
+        return '<?php $__env->endSlot(); ?>';
     }
 
     /**
