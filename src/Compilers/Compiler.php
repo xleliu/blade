@@ -1,15 +1,15 @@
 <?php
 
-namespace Xiaoler\Blade\Compilers;
+namespace terranc\Blade\Compilers;
 
-use Xiaoler\Blade\Filesystem;
+use terranc\Blade\Filesystem;
 
 abstract class Compiler
 {
     /**
      * The Filesystem instance.
      *
-     * @var \Xiaoler\Blade\Filesystem
+     * @var \terranc\Blade\Filesystem
      */
     protected $files;
 
@@ -21,15 +21,23 @@ abstract class Compiler
     protected $cachePath;
 
     /**
+     * cache switch
+     *
+     * @var boolean
+     */
+    protected $cache;
+
+    /**
      * Create a new compiler instance.
      *
      * @param  string  $cachePath
      * @return void
      */
-    public function __construct($cachePath)
+    public function __construct($cachePath, $cache = true)
     {
         $this->files = new Filesystem;
         $this->cachePath = $cachePath;
+        $this->cache = $cache;
     }
 
     /**
@@ -40,7 +48,7 @@ abstract class Compiler
      */
     public function getCompiledPath($path)
     {
-        return $this->cachePath.'/'.md5($path);
+        return $this->cachePath. '/' . sha1($path) . '.php';
     }
 
     /**
@@ -56,7 +64,7 @@ abstract class Compiler
         // If the compiled file doesn't exist we will indicate that the view is expired
         // so that it can be re-compiled. Else, we will verify the last modification
         // of the views is less than the modification times of the compiled views.
-        if (!$this->cachePath || !$this->files->exists($compiled)) {
+        if (!$this->files->exists($compiled) || ! $this->cache) {
             return true;
         }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Xiaoler\Blade;
+namespace terranc\Blade;
 
 use InvalidArgumentException;
 
@@ -9,7 +9,7 @@ class FileViewFinder implements ViewFinderInterface
     /**
      * The filesystem instance.
      *
-     * @var \Xiaoler\Blade\Filesystem
+     * @var \terranc\Blade\Filesystem
      */
     protected $files;
 
@@ -126,7 +126,7 @@ class FileViewFinder implements ViewFinderInterface
     {
         foreach ((array) $paths as $path) {
             foreach ($this->getPossibleViewFiles($name) as $file) {
-                if ($this->files->exists($viewPath = $path.'/'.$file)) {
+                if ($this->files->exists($viewPath = $path . '/' . $file)) {
                     return $viewPath;
                 }
             }
@@ -225,7 +225,7 @@ class FileViewFinder implements ViewFinderInterface
     /**
      * Get the filesystem instance.
      *
-     * @return \Xiaoler\Blade\Filesystem
+     * @return \terranc\Blade\Filesystem
      */
     public function getFilesystem()
     {

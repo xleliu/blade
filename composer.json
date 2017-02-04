@@ -1,16 +1,16 @@
 {
-    "name": "xiaoler/blade",
+    "name": "terranc/blade",
     "description": "an independent version of laravel view template - blade",
     "license": "MIT",
     "homepage": "http://0x1.im",
     "support": {
-        "issues": "https://github.com/XiaoLer/blade/issues",
-        "source": "https://github.com/XiaoLer/blade"
+        "issues": "https://github.com/terranc/blade/issues",
+        "source": "https://github.com/terranc/blade"
     },
     "authors": [
         {
-            "name": "Scholer Liu",
-            "email": "scholer_l@live.com"
+            "name": "terranc",
+            "email": "terran.chao@lookfeel.co"
         }
     ],
     "require": {
@@ -21,7 +21,7 @@
             "src/helpers.php"
         ],
         "psr-4": {
-            "Xiaoler\\Blade\\": "src/"
+            "terranc\\Blade\\": "src/"
         }
     }
 }

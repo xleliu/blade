@@ -1,24 +1,49 @@
 <?php
 
-namespace Xiaoler\Blade;
+namespace terranc\Blade;
 
 use InvalidArgumentException;
-use Xiaoler\Blade\ViewFinderInterface;
-use Xiaoler\Blade\Engines\EngineInterface;
+use terranc\Blade\Support\HtmlString;
+use terranc\Blade\ViewFinderInterface;
+use terranc\Blade\Engines\EngineInterface;
 
 class Factory
 {
     /**
+     * The components being rendered.
+     *
+     * @var array
+     */
+    protected $componentStack = [];
+    /**
+     * The original data passed to the component.
+     *
+     * @var array
+     */
+    protected $componentData = [];
+    /**
+     * The slot contents for the component.
+     *
+     * @var array
+     */
+    protected $slots = [];
+    /**
+     * The names of the slots being rendered.
+     *
+     * @var array
+     */
+    protected $slotStack = [];
+    /**
      * The engine implementation.
      *
-     * @var \Xiaoler\Blade\Engines\EngineInterface
+     * @var \terranc\Blade\Engines\EngineInterface
      */
     protected $engine;
 
     /**
      * The view finder implementation.
      *
-     * @var \Xiaoler\Blade\ViewFinderInterface
+     * @var \terranc\Blade\ViewFinderInterface
      */
     protected $finder;
 
@@ -88,7 +113,7 @@ class Factory
     /**
      * Create a new view factory instance.
      *
-     * @param  \Xiaoler\Blade\ViewFinderInterface  $finder
+     * @param  \terranc\Blade\ViewFinderInterface  $finder
      * @return void
      */
     public function __construct(EngineInterface $engine, ViewFinderInterface $finder)
@@ -105,7 +130,7 @@ class Factory
      * @param  string  $path
      * @param  array   $data
      * @param  array   $mergeData
-     * @return \Xiaoler\Blade\View
+     * @return \terranc\Blade\View
      */
     public function file($path, $data = [], $mergeData = [])
     {
@@ -122,7 +147,7 @@ class Factory
      * @param  string  $view
      * @param  array   $data
      * @param  array   $mergeData
-     * @return \Xiaoler\Blade\View
+     * @return \terranc\Blade\View
      */
     public function make($view, $data = [], $mergeData = [])
     {
@@ -165,7 +190,7 @@ class Factory
      *
      * @param  string  $view
      * @param  mixed   $data
-     * @return \Xiaoler\Blade\View
+     * @return \terranc\Blade\View
      */
     public function of($view, $data = [])
     {
@@ -623,7 +648,7 @@ class Factory
     /**
      * Get the view finder instance.
      *
-     * @return \Xiaoler\Blade\ViewFinderInterface
+     * @return \terranc\Blade\ViewFinderInterface
      */
     public function getFinder()
     {
@@ -633,7 +658,7 @@ class Factory
     /**
      * Set the view finder instance.
      *
-     * @param  \Xiaoler\Blade\ViewFinderInterface  $finder
+     * @param  \terranc\Blade\ViewFinderInterface  $finder
      * @return void
      */
     public function setFinder(ViewFinderInterface $finder)
@@ -692,5 +717,85 @@ class Factory
     public function getNames()
     {
         return $this->names;
+    }
+    /**
+     * Start a component rendering process.
+     *
+     * @param  string  $name
+     * @param  array  $data
+     * @return void
+     */
+    public function startComponent($name, array $data = [])
+    {
+        if (ob_start()) {
+            $this->componentStack[] = $name;
+            $this->componentData[$this->currentComponent()] = $data;
+            $this->slots[$this->currentComponent()] = [];
+        }
+    }
+    /**
+     * Render the current component.
+     *
+     * @return string
+     */
+    public function renderComponent()
+    {
+        $name = array_pop($this->componentStack);
+        return $this->make($name, $this->componentData($name))->render();
+    }
+    /**
+     * Get the data for the given component.
+     *
+     * @param  string  $name
+     * @return array
+     */
+    protected function componentData($name)
+    {
+        return array_merge(
+            $this->componentData[count($this->componentStack)],
+            ['slot' => new HtmlString(trim(ob_get_clean()))],
+            $this->slots[count($this->componentStack)]
+        );
+    }
+    /**
+     * Start the slot rendering process.
+     *
+     * @param  string  $name
+     * @param  string|null  $content
+     * @return void
+     */
+    public function slot($name, $content = null)
+    {
+        if ($content !== null) {
+            $this->slots[$this->currentComponent()][$name] = $content;
+        } else {
+            if (ob_start()) {
+                $this->slots[$this->currentComponent()][$name] = '';
+                $this->slotStack[$this->currentComponent()][] = $name;
+            }
+        }
+    }
+    /**
+     * Save the slot content for rendering.
+     *
+     * @return void
+     */
+    public function endSlot()
+    {
+        end($this->componentStack);
+        $currentSlot = array_pop(
+            $this->slotStack[$this->currentComponent()]
+        );
+        $this->slots[$this->currentComponent()]
+        [$currentSlot] = new HtmlString(trim(ob_get_clean()));
+    }
+    /**
+     * Get the index for the current component.
+     *
+     * @return int
+     */
+    protected function currentComponent()
+    {
+        return count($this->componentStack) - 1;
     }
 }
