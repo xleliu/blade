@@ -61,7 +61,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Compiler.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Compiler.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Compilers/Compiler.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1950">
@@ -111,11 +111,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="5" selection-start-line="0" selection-start-column="5" selection-end-line="2" selection-end-column="6" />
+            <state relative-caret-position="52">
+              <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -311,12 +311,12 @@
       <workItem from="1486141335568" duration="709000" />
       <workItem from="1486142314061" duration="271000" />
       <workItem from="1486142626702" duration="214000" />
-      <workItem from="1486142946030" duration="3718000" />
+      <workItem from="1486142946030" duration="3738000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="6003000" />
+    <option name="totallyTimeSpent" value="6023000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="47" y="23" width="1873" height="1177" extended-state="6" />
@@ -645,14 +645,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="5" selection-start-line="0" selection-start-column="5" selection-end-line="2" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Compilers/CompilerInterface.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
@@ -721,6 +713,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1950">
           <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="52">
+          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
           <folding />
         </state>
       </provider>
