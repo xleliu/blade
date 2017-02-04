@@ -1,6 +1,6 @@
 <?php
 
-namespace Xiaoler\Blade\Support;
+namespace terranc\Blade\Support;
 
 class HtmlString
 {

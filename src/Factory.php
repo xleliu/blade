@@ -1,11 +1,11 @@
 <?php
 
-namespace Xiaoler\Blade;
+namespace terranc\Blade;
 
 use InvalidArgumentException;
-use Xiaoler\Blade\Support\HtmlString;
-use Xiaoler\Blade\ViewFinderInterface;
-use Xiaoler\Blade\Engines\EngineInterface;
+use terranc\Blade\Support\HtmlString;
+use terranc\Blade\ViewFinderInterface;
+use terranc\Blade\Engines\EngineInterface;
 
 class Factory
 {
@@ -36,14 +36,14 @@ class Factory
     /**
      * The engine implementation.
      *
-     * @var \Xiaoler\Blade\Engines\EngineInterface
+     * @var \terranc\Blade\Engines\EngineInterface
      */
     protected $engine;
 
     /**
      * The view finder implementation.
      *
-     * @var \Xiaoler\Blade\ViewFinderInterface
+     * @var \terranc\Blade\ViewFinderInterface
      */
     protected $finder;
 
@@ -113,7 +113,7 @@ class Factory
     /**
      * Create a new view factory instance.
      *
-     * @param  \Xiaoler\Blade\ViewFinderInterface  $finder
+     * @param  \terranc\Blade\ViewFinderInterface  $finder
      * @return void
      */
     public function __construct(EngineInterface $engine, ViewFinderInterface $finder)
@@ -130,7 +130,7 @@ class Factory
      * @param  string  $path
      * @param  array   $data
      * @param  array   $mergeData
-     * @return \Xiaoler\Blade\View
+     * @return \terranc\Blade\View
      */
     public function file($path, $data = [], $mergeData = [])
     {
@@ -147,7 +147,7 @@ class Factory
      * @param  string  $view
      * @param  array   $data
      * @param  array   $mergeData
-     * @return \Xiaoler\Blade\View
+     * @return \terranc\Blade\View
      */
     public function make($view, $data = [], $mergeData = [])
     {
@@ -190,7 +190,7 @@ class Factory
      *
      * @param  string  $view
      * @param  mixed   $data
-     * @return \Xiaoler\Blade\View
+     * @return \terranc\Blade\View
      */
     public function of($view, $data = [])
     {
@@ -648,7 +648,7 @@ class Factory
     /**
      * Get the view finder instance.
      *
-     * @return \Xiaoler\Blade\ViewFinderInterface
+     * @return \terranc\Blade\ViewFinderInterface
      */
     public function getFinder()
     {
@@ -658,7 +658,7 @@ class Factory
     /**
      * Set the view finder instance.
      *
-     * @param  \Xiaoler\Blade\ViewFinderInterface  $finder
+     * @param  \terranc\Blade\ViewFinderInterface  $finder
      * @return void
      */
     public function setFinder(ViewFinderInterface $finder)

@@ -1,24 +1,24 @@
 <?php
 
-namespace Xiaoler\Blade;
+namespace terranc\Blade;
 
 use ArrayAccess;
 use BadMethodCallException;
-use Xiaoler\Blade\Engines\EngineInterface;
+use terranc\Blade\Engines\EngineInterface;
 
 class View implements ArrayAccess
 {
     /**
      * The view factory instance.
      *
-     * @var \Xiaoler\Blade\Factory
+     * @var \terranc\Blade\Factory
      */
     protected $factory;
 
     /**
      * The engine implementation.
      *
-     * @var \Xiaoler\Blade\Engines\EngineInterface
+     * @var \terranc\Blade\Engines\EngineInterface
      */
     protected $engine;
 
@@ -46,8 +46,8 @@ class View implements ArrayAccess
     /**
      * Create a new view instance.
      *
-     * @param  \Xiaoler\Blade\Factory  $factory
-     * @param  \Xiaoler\Blade\Engines\EngineInterface  $engine
+     * @param  \terranc\Blade\Factory  $factory
+     * @param  \terranc\Blade\Engines\EngineInterface  $engine
      * @param  string  $view
      * @param  string  $path
      * @param  array   $data
@@ -179,7 +179,7 @@ class View implements ArrayAccess
     /**
      * Get the view factory instance.
      *
-     * @return \Xiaoler\Blade\Factory
+     * @return \terranc\Blade\Factory
      */
     public function getFactory()
     {
@@ -189,7 +189,7 @@ class View implements ArrayAccess
     /**
      * Get the view's rendering engine.
      *
-     * @return \Xiaoler\Blade\Engines\EngineInterface
+     * @return \terranc\Blade\Engines\EngineInterface
      */
     public function getEngine()
     {
@@ -342,7 +342,7 @@ class View implements ArrayAccess
      *
      * @param  string  $method
      * @param  array   $parameters
-     * @return \Xiaoler\Blade\View
+     * @return \terranc\Blade\View
      *
      * @throws \BadMethodCallException
      */

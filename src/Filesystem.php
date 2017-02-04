@@ -1,6 +1,6 @@
 <?php
 
-namespace Xiaoler\Blade;
+namespace terranc\Blade;
 
 use Exception;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Xiaoler\Blade\Compilers;
+namespace terranc\Blade\Compilers;
 
 interface CompilerInterface
 {

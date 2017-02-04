@@ -1,11 +1,11 @@
 <?php
 
-namespace Xiaoler\Blade;
+namespace terranc\Blade;
 
 class Autoloader
 {
     /**
-     * Registers Xiaoler\Blade\Autoloader as an SPL autoloader and require helpers function.
+     * Registers terranc\Blade\Autoloader as an SPL autoloader and require helpers function.
      */
     public static function register()
     {
@@ -21,7 +21,7 @@ class Autoloader
      */
     public static function autoload($class)
     {
-        if (0 !== strpos($class, 'Xiaoler\Blade')) {
+        if (0 !== strpos($class, 'terranc\Blade')) {
             return;
         }
         if (is_file($file = dirname(__FILE__). '/' . str_replace('\\', '/', substr($class, 13)) . '.php')) {
