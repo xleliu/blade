@@ -3,7 +3,7 @@
 namespace Xiaoler\Blade\Concerns;
 
 use Countable;
-use Illuminate\Support\Arr;
+use Xiaoler\Blade\Support\Arr;
 
 trait ManagesLoops
 {
