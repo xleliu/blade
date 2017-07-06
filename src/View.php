@@ -2,8 +2,13 @@
 
 namespace Xiaoler\Blade;
 
+use Exception;
+use Throwable;
 use ArrayAccess;
 use BadMethodCallException;
+use Xiaoler\Blade\Support\Str;
+use Xiaoler\Blade\Contracts\Arrayable;
+use Xiaoler\Blade\Contracts\Renderable;
 use Xiaoler\Blade\Engines\EngineInterface;
 
 class View implements ArrayAccess
@@ -50,7 +55,7 @@ class View implements ArrayAccess
      * @param  \Xiaoler\Blade\Engines\EngineInterface  $engine
      * @param  string  $view
      * @param  string  $path
-     * @param  array   $data
+     * @param  mixed  $data
      * @return void
      */
     public function __construct(Factory $factory, EngineInterface $engine, $view, $path, $data = [])
@@ -60,7 +65,7 @@ class View implements ArrayAccess
         $this->engine = $engine;
         $this->factory = $factory;
 
-        $this->data = (array) $data;
+        $this->data = $data instanceof Arrayable ? $data->toArray() : (array) $data;
     }
 
     /**
@@ -68,19 +73,31 @@ class View implements ArrayAccess
      *
      * @param  callable|null  $callback
      * @return string
+     *
+     * @throws \Throwable
      */
     public function render(callable $callback = null)
     {
-        $contents = $this->renderContents();
+        try {
+            $contents = $this->renderContents();
 
-        $response = isset($callback) ? call_user_func($callback, $this, $contents) : null;
+            $response = isset($callback) ? call_user_func($callback, $this, $contents) : null;
 
-        // Once we have the contents of the view, we will flush the sections if we are
-        // done rendering all views so that there is nothing left hanging over when
-        // another view gets rendered in the future by the application developer.
-        $this->factory->flushSectionsIfDoneRendering();
+            // Once we have the contents of the view, we will flush the sections if we are
+            // done rendering all views so that there is nothing left hanging over when
+            // another view gets rendered in the future by the application developer.
+            $this->factory->flushStateIfDoneRendering();
 
-        return !is_null($response) ? $response : $contents;
+            return ! is_null($response) ? $response : $contents;
+        } catch (Exception $e) {
+            $this->factory->flushState();
+
+            throw $e;
+        } catch (Throwable $e) {
+            $this->factory->flushState();
+
+            throw $e;
+        }
     }
 
     /**
@@ -103,18 +120,6 @@ class View implements ArrayAccess
         $this->factory->decrementRender();
 
         return $contents;
-    }
-
-    /**
-     * Get the sections of the rendered view.
-     *
-     * @return array
-     */
-    public function renderSections()
-    {
-        return $this->render(function () {
-            return $this->factory->getSections();
-        });
     }
 
     /**
@@ -146,6 +151,18 @@ class View implements ArrayAccess
     }
 
     /**
+     * Get the sections of the rendered view.
+     *
+     * @return array
+     */
+    public function renderSections()
+    {
+        return $this->render(function () {
+            return $this->factory->getSections();
+        });
+    }
+
+    /**
      * Add a piece of data to the view.
      *
      * @param  string|array  $key
@@ -174,26 +191,6 @@ class View implements ArrayAccess
     public function nest($key, $view, array $data = [])
     {
         return $this->with($key, $this->factory->make($view, $data));
-    }
-
-    /**
-     * Get the view factory instance.
-     *
-     * @return \Xiaoler\Blade\Factory
-     */
-    public function getFactory()
-    {
-        return $this->factory;
-    }
-
-    /**
-     * Get the view's rendering engine.
-     *
-     * @return \Xiaoler\Blade\Engines\EngineInterface
-     */
-    public function getEngine()
-    {
-        return $this->engine;
     }
 
     /**
@@ -245,6 +242,26 @@ class View implements ArrayAccess
     public function setPath($path)
     {
         $this->path = $path;
+    }
+
+    /**
+     * Get the view factory instance.
+     *
+     * @return \Xiaoler\Blade\Factory
+     */
+    public function getFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
+     * Get the view's rendering engine.
+     *
+     * @return \Xiaoler\Blade\Engines\EngineInterface
+     */
+    public function getEngine()
+    {
+        return $this->engine;
     }
 
     /**
@@ -348,18 +365,11 @@ class View implements ArrayAccess
      */
     public function __call($method, $parameters)
     {
-        if (strpos($method, 'with') === 0) {
-            $value = substr($method, 4);
-
-            if (!ctype_lower($value)) {
-                $value = preg_replace('/\s+/', '', $value);
-                $value = strtolower(preg_replace('/(.)(?=[A-Z])/', '$1'.'_', $value));
-            }
-
-            return $this->with($value, $parameters[0]);
+        if (! Str::startsWith($method, 'with')) {
+            throw new BadMethodCallException("Method [$method] does not exist on view.");
         }
 
-        throw new BadMethodCallException("Method [$method] does not exist on view.");
+        return $this->with(Str::snake(substr($method, 4)), $parameters[0]);
     }
 
     /**

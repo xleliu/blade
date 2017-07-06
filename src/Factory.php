@@ -2,18 +2,25 @@
 
 namespace Xiaoler\Blade;
 
+use Xiaoler\Blade\Support\Arr;
+use Xiaoler\Blade\Support\Str;
 use InvalidArgumentException;
-use Xiaoler\Blade\ViewFinderInterface;
-use Xiaoler\Blade\Engines\EngineInterface;
+use Xiaoler\Blade\Contracts\Arrayable;
+use Xiaoler\Blade\Engines\EngineResolver;
 
 class Factory
 {
+    use Concerns\ManagesComponents,
+        Concerns\ManagesLayouts,
+        Concerns\ManagesLoops,
+        Concerns\ManagesStacks;
+
     /**
      * The engine implementation.
      *
-     * @var \Xiaoler\Blade\Engines\EngineInterface
+     * @var \Xiaoler\Blade\Engines\EngineResolver
      */
-    protected $engine;
+    protected $engines;
 
     /**
      * The view finder implementation.
@@ -30,53 +37,15 @@ class Factory
     protected $shared = [];
 
     /**
-     * Array of registered view name aliases.
+     * The extension to engine bindings.
      *
      * @var array
      */
-    protected $aliases = [];
-
-    /**
-     * All of the registered view names.
-     *
-     * @var array
-     */
-    protected $names = [];
-
-    /**
-     * All of the finished, captured sections.
-     *
-     * @var array
-     */
-    protected $sections = [];
-
-    /**
-     * The stack of in-progress sections.
-     *
-     * @var array
-     */
-    protected $sectionStack = [];
-
-    /**
-     * The stack of in-progress loops.
-     *
-     * @var array
-     */
-    protected $loopsStack = [];
-
-    /**
-     * All of the finished, captured push sections.
-     *
-     * @var array
-     */
-    protected $pushes = [];
-
-    /**
-     * The stack of in-progress push sections.
-     *
-     * @var array
-     */
-    protected $pushStack = [];
+    protected $extensions = [
+        'blade.php' => 'blade',
+        'php' => 'php',
+        'css' => 'file',
+    ];
 
     /**
      * The number of active rendering operations.
@@ -88,13 +57,14 @@ class Factory
     /**
      * Create a new view factory instance.
      *
+     * @param  \Xiaoler\Blade\Engines\EngineResolver  $engines
      * @param  \Xiaoler\Blade\ViewFinderInterface  $finder
      * @return void
      */
-    public function __construct(EngineInterface $engine, ViewFinderInterface $finder)
+    public function __construct(EngineResolver $engines, ViewFinderInterface $finder)
     {
         $this->finder = $finder;
-        $this->engine = $engine;
+        $this->engines = $engines;
 
         $this->share('__env', $this);
     }
@@ -109,11 +79,9 @@ class Factory
      */
     public function file($path, $data = [], $mergeData = [])
     {
-        $data = array_merge($mergeData, $data);
+        $data = array_merge($mergeData, $this->parseData($data));
 
-        $view = new View($this, $this->engine, $path, $path, $data);
-
-        return $view;
+        return $this->viewInstance($path, $path, $data);
     }
 
     /**
@@ -126,91 +94,34 @@ class Factory
      */
     public function make($view, $data = [], $mergeData = [])
     {
-        if (isset($this->aliases[$view])) {
-            $view = $this->aliases[$view];
-        }
+        $path = $this->finder->find(
+            $view = $this->normalizeName($view)
+        );
 
-        $view = $this->normalizeName($view);
+        // Next, we will create the view instance and call the view creator for the view
+        // which can set any data, etc. Then we will return the view instance back to
+        // the caller for rendering or performing other view manipulations on this.
+        $data = array_merge($mergeData, $this->parseData($data));
 
-        $path = $this->finder->find($view);
-
-        $data = array_merge($mergeData, $data);
-
-        $view = new View($this, $this->engine, $view, $path, $data);
-
-        return $view;
+        return $this->viewInstance($view, $path, $data);
     }
 
     /**
-     * Normalize a view name.
+     * Get the rendered content of the view based on a given condition.
      *
-     * @param  string $name
+     * @param  bool  $condition
+     * @param  string  $view
+     * @param  array   $data
+     * @param  array   $mergeData
      * @return string
      */
-    protected function normalizeName($name)
+    public function renderWhen($condition, $view, $data = [], $mergeData = [])
     {
-        $delimiter = ViewFinderInterface::HINT_PATH_DELIMITER;
-
-        if (strpos($name, $delimiter) === false) {
-            return str_replace('/', '.', $name);
+        if (! $condition) {
+            return '';
         }
 
-        list($namespace, $name) = explode($delimiter, $name);
-
-        return $namespace.$delimiter.str_replace('/', '.', $name);
-    }
-
-    /**
-     * Get the evaluated view contents for a named view.
-     *
-     * @param  string  $view
-     * @param  mixed   $data
-     * @return \Xiaoler\Blade\View
-     */
-    public function of($view, $data = [])
-    {
-        return $this->make($this->names[$view], $data);
-    }
-
-    /**
-     * Register a named view.
-     *
-     * @param  string  $view
-     * @param  string  $name
-     * @return void
-     */
-    public function name($view, $name)
-    {
-        $this->names[$name] = $view;
-    }
-
-    /**
-     * Add an alias for a view.
-     *
-     * @param  string  $view
-     * @param  string  $alias
-     * @return void
-     */
-    public function alias($view, $alias)
-    {
-        $this->aliases[$alias] = $view;
-    }
-
-    /**
-     * Determine if a given view exists.
-     *
-     * @param  string  $view
-     * @return bool
-     */
-    public function exists($view)
-    {
-        try {
-            $this->finder->find($view);
-        } catch (InvalidArgumentException $e) {
-            return false;
-        }
-
-        return true;
+        return $this->make($view, $this->parseData($data), $mergeData)->render();
     }
 
     /**
@@ -231,9 +142,9 @@ class Factory
         // iterated value of this data array, allowing the views to access them.
         if (count($data) > 0) {
             foreach ($data as $key => $value) {
-                $data = ['key' => $key, $iterator => $value];
-
-                $result .= $this->make($view, $data)->render();
+                $result .= $this->make(
+                    $view, ['key' => $key, $iterator => $value]
+                )->render();
             }
         }
 
@@ -241,14 +152,98 @@ class Factory
         // view. Alternatively, the "empty view" could be a raw string that begins
         // with "raw|" for convenience and to let this know that it is a string.
         else {
-            if (strpos($empty, 'raw|') === 0) {
-                $result = substr($empty, 4);
-            } else {
-                $result = $this->make($empty)->render();
-            }
+            $result = Str::startsWith($empty, 'raw|')
+                        ? substr($empty, 4)
+                        : $this->make($empty)->render();
         }
 
         return $result;
+    }
+
+    /**
+     * Normalize a view name.
+     *
+     * @param  string $name
+     * @return string
+     */
+    protected function normalizeName($name)
+    {
+        return ViewName::normalize($name);
+    }
+
+    /**
+     * Parse the given data into a raw array.
+     *
+     * @param  mixed  $data
+     * @return array
+     */
+    protected function parseData($data)
+    {
+        return $data instanceof Arrayable ? $data->toArray() : $data;
+    }
+
+    /**
+     * Create a new view instance from the given arguments.
+     *
+     * @param  string  $view
+     * @param  string  $path
+     * @param  array  $data
+     * @return \Xiaoler\Blade\View
+     */
+    protected function viewInstance($view, $path, $data)
+    {
+        return new View($this, $this->getEngineFromPath($path), $view, $path, $data);
+    }
+
+    /**
+     * Determine if a given view exists.
+     *
+     * @param  string  $view
+     * @return bool
+     */
+    public function exists($view)
+    {
+        try {
+            $this->finder->find($view);
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the appropriate view engine for the given path.
+     *
+     * @param  string  $path
+     * @return \Xiaoler\Blade\Engines\EngineInterface
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function getEngineFromPath($path)
+    {
+        if (! $extension = $this->getExtension($path)) {
+            throw new InvalidArgumentException("Unrecognized extension in file: $path");
+        }
+
+        $engine = $this->extensions[$extension];
+
+        return $this->engines->resolve($engine);
+    }
+
+    /**
+     * Get the extension used by the view file.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    protected function getExtension($path)
+    {
+        $extensions = array_keys($this->extensions);
+
+        return Arr::first($extensions, function ($value) use ($path) {
+            return Str::endsWith($path, '.'.$value);
+        });
     }
 
     /**
@@ -260,224 +255,13 @@ class Factory
      */
     public function share($key, $value = null)
     {
-        if (!is_array($key)) {
-            return $this->shared[$key] = $value;
+        $keys = is_array($key) ? $key : [$key => $value];
+
+        foreach ($keys as $key => $value) {
+            $this->shared[$key] = $value;
         }
 
-        foreach ($key as $innerKey => $innerValue) {
-            $this->share($innerKey, $innerValue);
-        }
-    }
-
-    /**
-     * Start injecting content into a section.
-     *
-     * @param  string  $section
-     * @param  string  $content
-     * @return void
-     */
-    public function startSection($section, $content = '')
-    {
-        if ($content === '') {
-            if (ob_start()) {
-                $this->sectionStack[] = $section;
-            }
-        } else {
-            $this->extendSection($section, $content);
-        }
-    }
-
-    /**
-     * Inject inline content into a section.
-     *
-     * @param  string  $section
-     * @param  string  $content
-     * @return void
-     */
-    public function inject($section, $content)
-    {
-        return $this->startSection($section, $content);
-    }
-
-    /**
-     * Stop injecting content into a section and return its contents.
-     *
-     * @return string
-     */
-    public function yieldSection()
-    {
-        return $this->yieldContent($this->stopSection());
-    }
-
-    /**
-     * Stop injecting content into a section.
-     *
-     * @param  bool  $overwrite
-     * @return string
-     */
-    public function stopSection($overwrite = false)
-    {
-        $last = array_pop($this->sectionStack);
-
-        if ($overwrite) {
-            $this->sections[$last] = ob_get_clean();
-        } else {
-            $this->extendSection($last, ob_get_clean());
-        }
-
-        return $last;
-    }
-
-    /**
-     * Stop injecting content into a section and append it.
-     *
-     * @return string
-     */
-    public function appendSection()
-    {
-        $last = array_pop($this->sectionStack);
-
-        if (isset($this->sections[$last])) {
-            $this->sections[$last] .= ob_get_clean();
-        } else {
-            $this->sections[$last] = ob_get_clean();
-        }
-
-        return $last;
-    }
-
-    /**
-     * Append content to a given section.
-     *
-     * @param  string  $section
-     * @param  string  $content
-     * @return void
-     */
-    protected function extendSection($section, $content)
-    {
-        if (isset($this->sections[$section])) {
-            $content = str_replace('@parent', $content, $this->sections[$section]);
-        }
-
-        $this->sections[$section] = $content;
-    }
-
-    /**
-     * Get the string contents of a section.
-     *
-     * @param  string  $section
-     * @param  string  $default
-     * @return string
-     */
-    public function yieldContent($section, $default = '')
-    {
-        $sectionContent = $default;
-
-        if (isset($this->sections[$section])) {
-            $sectionContent = $this->sections[$section];
-        }
-
-        $sectionContent = str_replace('@@parent', '--parent--holder--', $sectionContent);
-
-        return str_replace(
-            '--parent--holder--', '@parent', str_replace('@parent', '', $sectionContent)
-        );
-    }
-
-    /**
-     * Start injecting content into a push section.
-     *
-     * @param  string  $section
-     * @param  string  $content
-     * @return void
-     */
-    public function startPush($section, $content = '')
-    {
-        if ($content === '') {
-            if (ob_start()) {
-                $this->pushStack[] = $section;
-            }
-        } else {
-            $this->extendPush($section, $content);
-        }
-    }
-
-    /**
-     * Stop injecting content into a push section.
-     *
-     * @return string
-     * @throws \InvalidArgumentException
-     */
-    public function stopPush()
-    {
-        if (empty($this->pushStack)) {
-            throw new InvalidArgumentException('Cannot end a section without first starting one.');
-        }
-
-        $last = array_pop($this->pushStack);
-
-        $this->extendPush($last, ob_get_clean());
-
-        return $last;
-    }
-
-    /**
-     * Append content to a given push section.
-     *
-     * @param  string  $section
-     * @param  string  $content
-     * @return void
-     */
-    protected function extendPush($section, $content)
-    {
-        if (! isset($this->pushes[$section])) {
-            $this->pushes[$section] = [];
-        }
-        if (! isset($this->pushes[$section][$this->renderCount])) {
-            $this->pushes[$section][$this->renderCount] = $content;
-        } else {
-            $this->pushes[$section][$this->renderCount] .= $content;
-        }
-    }
-
-    /**
-     * Get the string contents of a push section.
-     *
-     * @param  string  $section
-     * @param  string  $default
-     * @return string
-     */
-    public function yieldPushContent($section, $default = '')
-    {
-        if (! isset($this->pushes[$section])) {
-            return $default;
-        }
-
-        return implode(array_reverse($this->pushes[$section]));
-    }
-
-    /**
-     * Flush all of the section contents.
-     *
-     * @return void
-     */
-    public function flushSections()
-    {
-        $this->sections = [];
-
-        $this->sectionStack = [];
-    }
-
-    /**
-     * Flush all of the section contents if done rendering.
-     *
-     * @return void
-     */
-    public function flushSectionsIfDoneRendering()
-    {
-        if ($this->doneRendering()) {
-            $this->flushSections();
-        }
+        return $value;
     }
 
     /**
@@ -511,81 +295,6 @@ class Factory
     }
 
     /**
-     * Add new loop to the stack.
-     *
-     * @param  array|\Countable  $data
-     * @return void
-     */
-    public function addLoop($data)
-    {
-        $length = is_array($data) || $data instanceof Countable ? count($data) : null;
-
-        $parent = end($this->loopsStack);
-
-        $this->loopsStack[] = [
-            'iteration' => 0,
-            'index' => 0,
-            'remaining' => isset($length) ? $length : null,
-            'count' => $length,
-            'first' => true,
-            'last' => isset($length) ? $length == 1 : null,
-            'depth' => count($this->loopsStack) + 1,
-            'parent' => $parent ? (object) $parent : null,
-        ];
-    }
-
-    /**
-     * Increment the top loop's indices.
-     *
-     * @return void
-     */
-    public function incrementLoopIndices()
-    {
-        $loop = &$this->loopsStack[count($this->loopsStack) - 1];
-
-        $loop['iteration']++;
-        $loop['index'] = $loop['iteration'] - 1;
-
-        $loop['first'] = $loop['iteration'] == 1;
-
-        if (isset($loop['count'])) {
-            $loop['remaining']--;
-
-            $loop['last'] = $loop['iteration'] == $loop['count'];
-        }
-    }
-
-    /**
-     * Pop a loop from the top of the loop stack.
-     *
-     * @return void
-     */
-    public function popLoop()
-    {
-        array_pop($this->loopsStack);
-    }
-
-    /**
-     * Get an instance of the first loop in the stack.
-     *
-     * @return array
-     */
-    public function getFirstLoop()
-    {
-        return ($last = end($this->loopsStack)) ? (object) $last : null;
-    }
-
-    /**
-     * Get the entire loop stack.
-     *
-     * @return array
-     */
-    public function getLoopStack()
-    {
-        return $this->loopsStack;
-    }
-
-    /**
      * Add a location to the array of view locations.
      *
      * @param  string  $location
@@ -601,11 +310,13 @@ class Factory
      *
      * @param  string  $namespace
      * @param  string|array  $hints
-     * @return void
+     * @return $this
      */
     public function addNamespace($namespace, $hints)
     {
         $this->finder->addNamespace($namespace, $hints);
+
+        return $this;
     }
 
     /**
@@ -613,11 +324,93 @@ class Factory
      *
      * @param  string  $namespace
      * @param  string|array  $hints
-     * @return void
+     * @return $this
      */
     public function prependNamespace($namespace, $hints)
     {
         $this->finder->prependNamespace($namespace, $hints);
+
+        return $this;
+    }
+
+    /**
+     * Replace the namespace hints for the given namespace.
+     *
+     * @param  string  $namespace
+     * @param  string|array  $hints
+     * @return $this
+     */
+    public function replaceNamespace($namespace, $hints)
+    {
+        $this->finder->replaceNamespace($namespace, $hints);
+
+        return $this;
+    }
+
+    /**
+     * Register a valid view extension and its engine.
+     *
+     * @param  string    $extension
+     * @param  string    $engine
+     * @param  \Closure  $resolver
+     * @return void
+     */
+    public function addExtension($extension, $engine, $resolver = null)
+    {
+        $this->finder->addExtension($extension);
+
+        if (isset($resolver)) {
+            $this->engines->register($engine, $resolver);
+        }
+
+        unset($this->extensions[$extension]);
+
+        $this->extensions = array_merge([$extension => $engine], $this->extensions);
+    }
+
+    /**
+     * Flush all of the factory state like sections and stacks.
+     *
+     * @return void
+     */
+    public function flushState()
+    {
+        $this->renderCount = 0;
+
+        $this->flushSections();
+        $this->flushStacks();
+    }
+
+    /**
+     * Flush all of the section contents if done rendering.
+     *
+     * @return void
+     */
+    public function flushStateIfDoneRendering()
+    {
+        if ($this->doneRendering()) {
+            $this->flushState();
+        }
+    }
+
+    /**
+     * Get the extension to engine bindings.
+     *
+     * @return array
+     */
+    public function getExtensions()
+    {
+        return $this->extensions;
+    }
+
+    /**
+     * Get the engine resolver instance.
+     *
+     * @return \Xiaoler\Blade\Engines\EngineResolver
+     */
+    public function getEngineResolver()
+    {
+        return $this->engines;
     }
 
     /**
@@ -642,6 +435,16 @@ class Factory
     }
 
     /**
+     * Flush the cache of views located by the finder.
+     *
+     * @return void
+     */
+    public function flushFinderCache()
+    {
+        $this->getFinder()->flush();
+    }
+
+    /**
      * Get an item from the shared data.
      *
      * @param  string  $key
@@ -650,7 +453,7 @@ class Factory
      */
     public function shared($key, $default = null)
     {
-        return array_key_exists($key, $this->shared) ? $this->shared[$key] : $default;
+        return Arr::get($this->shared, $key, $default);
     }
 
     /**
@@ -661,36 +464,5 @@ class Factory
     public function getShared()
     {
         return $this->shared;
-    }
-
-    /**
-     * Check if section exists.
-     *
-     * @param  string  $name
-     * @return bool
-     */
-    public function hasSection($name)
-    {
-        return array_key_exists($name, $this->sections);
-    }
-
-    /**
-     * Get the entire array of sections.
-     *
-     * @return array
-     */
-    public function getSections()
-    {
-        return $this->sections;
-    }
-
-    /**
-     * Get all of the registered named views in environment.
-     *
-     * @return array
-     */
-    public function getNames()
-    {
-        return $this->names;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Xiaoler\Blade\Compilers;
 
+use InvalidArgumentException;
 use Xiaoler\Blade\Filesystem;
 
 abstract class Compiler
@@ -23,12 +24,19 @@ abstract class Compiler
     /**
      * Create a new compiler instance.
      *
+     * @param  \Xiaoler\Blade\Filesystem  $files
      * @param  string  $cachePath
      * @return void
+     *
+     * @throws \InvalidArgumentException
      */
-    public function __construct($cachePath)
+    public function __construct(Filesystem $files, $cachePath)
     {
-        $this->files = new Filesystem;
+        if (! $cachePath) {
+            throw new InvalidArgumentException('Please provide a valid cache path.');
+        }
+
+        $this->files = $files;
         $this->cachePath = $cachePath;
     }
 
@@ -40,7 +48,7 @@ abstract class Compiler
      */
     public function getCompiledPath($path)
     {
-        return $this->cachePath.'/'.md5($path);
+        return $this->cachePath.'/'.sha1($path).'.php';
     }
 
     /**
@@ -56,12 +64,11 @@ abstract class Compiler
         // If the compiled file doesn't exist we will indicate that the view is expired
         // so that it can be re-compiled. Else, we will verify the last modification
         // of the views is less than the modification times of the compiled views.
-        if (!$this->cachePath || !$this->files->exists($compiled)) {
+        if (! $this->files->exists($compiled)) {
             return true;
         }
 
-        $lastModified = $this->files->lastModified($path);
-
-        return $lastModified >= $this->files->lastModified($compiled);
+        return $this->files->lastModified($path) >=
+               $this->files->lastModified($compiled);
     }
 }

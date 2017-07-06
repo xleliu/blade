@@ -2,7 +2,7 @@
 
 namespace Xiaoler\Blade\Engines;
 
-interface EngineInterface
+class FileEngine implements EngineInterface
 {
     /**
      * Get the evaluated contents of the view.
@@ -11,5 +11,8 @@ interface EngineInterface
      * @param  array   $data
      * @return string
      */
-    public function get($path, array $data = []);
+    public function get($path, array $data = [])
+    {
+        return file_get_contents($path);
+    }
 }
