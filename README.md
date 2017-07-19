@@ -45,8 +45,8 @@ $compiler->directive('datetime', function($timestamp) {
 });
 
 $resolver = new EngineResolver;
-$resolver->register('blade', function () use ($file, $cachePath) {
-    return new CompilerEngine(new BladeCompiler($file, $cachePath));
+$resolver->register('blade', function () use ($compiler) {
+    return new CompilerEngine($compiler);
 });
 
 // get an instance of factory
@@ -67,6 +67,6 @@ You can't:
 - use `@inject` `@can` `@cannot` `@lang` in a template file
 - add any events or middleawares
 
-Documentation: [http://laravel.com/docs/5.3/blade](http://laravel.com/docs/5.3/blade)
+Documentation: [http://laravel.com/docs/5.4/blade](http://laravel.com/docs/5.3/blade)
 
 Thanks for Laravel and it authors. That is a great project.
