@@ -4,6 +4,7 @@ namespace Xiaoler\Blade\Engines;
 
 use Exception;
 use ErrorException;
+use Xiaoler\Blade\Support\Arr;
 use Xiaoler\Blade\Compilers\CompilerInterface;
 
 class CompilerEngine extends PhpEngine
@@ -87,7 +88,7 @@ class CompilerEngine extends PhpEngine
      */
     protected function getMessage(Exception $e)
     {
-        return $e->getMessage().' (View: '.realpath(last($this->lastCompiled)).')';
+        return $e->getMessage().' (View: '.realpath(Arr::last($this->lastCompiled)).')';
     }
 
     /**
