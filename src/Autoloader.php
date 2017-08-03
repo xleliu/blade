@@ -9,7 +9,7 @@ class Autoloader
      */
     public static function register()
     {
-        require '../src/helpers.php';
+        require './helpers.php';
 
         spl_autoload_register([self::class, 'autoload']);
     }
