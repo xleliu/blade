@@ -2,6 +2,7 @@
 
 namespace Xiaoler\Blade\Concerns;
 
+use Xiaoler\Blade\Support\Arr;
 use Xiaoler\Blade\Support\HtmlString;
 
 trait ManagesComponents
@@ -106,7 +107,7 @@ trait ManagesComponents
      */
     public function endSlot()
     {
-        last($this->componentStack);
+        Arr::last($this->componentStack);
 
         $currentSlot = array_pop(
             $this->slotStack[$this->currentComponent()]
